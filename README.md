@@ -67,3 +67,8 @@ Despite advances in AI, most users still rely on typing to interact with digital
 
 ```bash
 pip install openai speechrecognition pyttsx3 pyaudio
+```
+
+
+## Author
+- Manh Nguyen
