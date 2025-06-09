@@ -71,4 +71,7 @@ pip install openai speechrecognition pyttsx3 pyaudio
 
 
 ## Author
-- Manh Nguyen
+
+**Manh Nguyen**\
+📧 Email: [manhnhd.vn@gmail.com](mailto\:manhnhd.vn@gmail.com)\
+🔗 LinkedIn: [Manh Nguyen](https://www.linkedin.com/in/harrryy/)
