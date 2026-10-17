@@ -1,5 +1,7 @@
 # VIRA Bio
 
+[![Tests](https://github.com/HoDucManhNguyen/VIRA-Bio/actions/workflows/tests.yml/badge.svg)](https://github.com/HoDucManhNguyen/VIRA-Bio/actions/workflows/tests.yml)
+
 **Find checkable evidence in biomedical PDFs.** VIRA Bio is a local-first research workspace that imports PDFs, retrieves relevant passages, and links every result to its source page. An optional local Ollama model can draft an answer from retrieved excerpts; the source pages remain the place to verify it.
 
 This repository is the current VIRA Bio application. The earlier voice-assistant prototype remains available in the Git history.
