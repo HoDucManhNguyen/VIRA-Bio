@@ -1,77 +1,86 @@
-# VIRA - Voice Interactive Responsive Assistant
+# VIRA Bio
 
-## Elevating Human-AI Interaction for Productivity & Support
+**Find checkable evidence in biomedical PDFs.** VIRA Bio is a local-first research workspace that imports PDFs, retrieves relevant passages, and links every result to its source page. An optional local Ollama model can draft an answer from retrieved excerpts; the source pages remain the place to verify it.
 
-In today's fast-paced, multitasking world, seamless interaction with AI through voice commands is becoming a necessity—not a luxury. **VIRA (Voice Interactive Responsive Assistant)** is a professional-grade AI voice assistant that empowers users to engage with OpenAI's large language models using natural speech.
+This repository is the current VIRA Bio application. The earlier voice-assistant prototype remains available in the Git history.
 
-Whether it's for customer service, business productivity, education, accessibility, or daily personal support, VIRA transforms the way users access knowledge and complete tasks—**hands-free, in real-time**.
+## What you can do
 
----
+- **Build a PDF library:** Import multiple text-based PDFs that you have permission to store and process. VIRA keeps the files and search index in a local SQLite-backed workspace.
+- **Find source passages:** Search the full text with SQLite FTS5 and open a result at its original PDF page.
+- **Ask your PDFs:** Get relevant excerpts with page citations. With Ollama enabled, VIRA can draft a short answer and checks its source references, exact quotes, and numbers before displaying it. These checks cannot prove the interpretation is correct.
+- **Add semantic retrieval:** Optionally create local embeddings with Ollama and combine semantic and keyword rankings. Keyword search works without an embedding model.
+- **Discover papers on PubMed:** Search citation metadata and links on demand. VIRA does not automatically download or import article full text.
+- **Organize research:** Keep notes and tasks in the same workspace.
 
-## 💡 The Problem VIRA Solves
+The interface opens on **Instructions** and focuses on **PDF Library**. There is no general-purpose chat page.
 
-Despite advances in AI, most users still rely on typing to interact with digital assistants or services. This creates barriers for:
-- Visually impaired individuals
-- Professionals in hands-busy environments (e.g., chefs, mechanics, healthcare workers)
-- Elderly users unfamiliar with typing interfaces
-- Fast-paced customer service or smart kiosk systems
+## How it works
 
-**VIRA breaks that barrier** by allowing users to converse naturally, making AI more accessible, inclusive, and responsive.
-
----
-
-## 🧠 Why VIRA Matters for Business & Society
-
-- **Customer Service**: VIRA can be integrated into kiosks, reception systems, or smart homes to assist users 24/7 with minimal operational cost.
-- **Accessibility**: Enables organizations to provide inclusive support for users with disabilities.
-- **Automation & Efficiency**: Reduces time spent on repetitive queries by offering instant, AI-powered responses.
-- **Education & Training**: Serves as an interactive tutor or knowledge agent for training environments or students with different learning needs.
-- **Healthcare**: Can assist in environments where sanitation and hands-free operation are critical.
-
----
-
-## 🔧 Core Features
-
-- 🎙️ **Speech Recognition**: Real-time conversion of voice to text using Google Speech Recognition.
-- 🧠 **OpenAI Integration**: Uses OpenAI’s GPT API (`gpt-4.1-nano`) for intelligent, context-aware responses.
-- 🗣️ **Text-to-Speech**: Natural spoken replies via `pyttsx3` so the assistant can talk back.
-- 🔁 **Conversation Loop**: Continuous listening and interaction until the user says “bye”.
-
----
-
-## 🏗️ Technology Stack
-
-- **Python 3.8+**
-- `openai` – For GPT-based natural language processing.
-- `speech_recognition` – To capture and transcribe user voice input.
-- `pyttsx3` – To convert AI responses into spoken audio.
-- `pyaudio` – For microphone input (dependency for speech recognition).
-
----
-
-## 🔍 Real-World Use Cases
-
-| Use Case                  | Description                                                                 |
-|---------------------------|-----------------------------------------------------------------------------|
-| Smart Offices             | Voice-controlled assistants for meeting scheduling, summaries, or reminders |
-| Elderly Care Systems      | Provide companionship, medication reminders, or information access          |
-| Retail Kiosks             | Automate FAQs and product search in stores                                 |
-| Hands-Free Support Lines  | Support users on the move or in physical tasks                              |
-| Interactive Classrooms    | Enable personalized Q&A for students and teachers                          |
-
----
-
-## 🚀 Installation & Setup
-
-### 📦 Dependencies
-
-```bash
-pip install openai speechrecognition pyttsx3 pyaudio
+```mermaid
+flowchart LR
+    B[Browser] --> A[FastAPI application]
+    A --> D[(SQLite: metadata, FTS5, notes, tasks)]
+    A --> P[Local PDF files]
+    A -->|Optional: answers and embeddings| O[Local Ollama]
+    A -->|Search on request| N[NCBI PubMed]
 ```
 
+The default `extractive` provider returns matching PDF excerpts without generating a conclusion. The optional `ollama` provider receives retrieved excerpts on the same computer. PubMed receives only search terms when a user requests a lookup. See [Architecture](docs/ARCHITECTURE.md) for the retrieval and citation flow.
 
-## Author
+## Run locally
 
-**Manh Nguyen**\
-📧 Email: [manhnhd.vn@gmail.com](mailto\:manhnhd.vn@gmail.com)\
-🔗 LinkedIn: [Manh Nguyen](https://www.linkedin.com/in/harrryy/)
+Requires Python 3.12 or newer. No paid API key is required.
+
+```bash
+git clone https://github.com/HoDucManhNguyen/VIRA-Bio.git
+cd VIRA-Bio
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+cp .env.example .env
+python run.py
+```
+
+Open <http://127.0.0.1:8000>. On an existing installation, keep its `.env` and `data/` folder; do not replace them with files from a new clone. Follow the [setup guide](SETUP.md) for PDF import, Ollama, semantic search, and troubleshooting.
+
+To enable locally generated answers, install [Ollama](https://ollama.com/download), run `ollama pull gemma3:4b`, and set these values in `.env` before restarting VIRA:
+
+```dotenv
+VIRA_PROVIDER=ollama
+VIRA_MODEL=gemma3:4b
+VIRA_OLLAMA_URL=http://127.0.0.1:11434
+```
+
+For hybrid retrieval, also run `ollama pull nomic-embed-text` and build the index from **PDF Library → Semantic search**. Ollama is optional for keyword retrieval and source-linked excerpts.
+
+## Share a small workspace
+
+The [sharing guide](SHARING.md) explains how to expose a temporary HTTPS link from your own computer. Visitors use a browser and share one PDF library, notes, and tasks. Anonymous sharing gives every visitor access to read, add, and delete shared data, so use only non-confidential material. The server and Ollama remain bound to localhost.
+
+There is no permanent public demo URL yet. A portfolio demo should use a PDF that can be published and should explain that free hosting may reset uploaded files and the SQLite database.
+
+## Verify and evaluate
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m unittest discover -s tests -v
+```
+
+Tests cover PDF import, retrieval, citation behavior, API access controls, and PubMed parsing. The [benchmark guide](benchmarks/README.md) describes how to label source pages and compare keyword with hybrid retrieval. No biomedical accuracy score is claimed until a human-labeled document set has been evaluated.
+
+## Current scope
+
+| Capability | Status |
+| --- | --- |
+| PDF import, FTS5 search, source-page links | Implemented |
+| Source-backed PDF questions | Implemented; local Ollama optional |
+| Local hybrid retrieval | Implemented; embedding model optional |
+| PubMed citation metadata lookup | Implemented |
+| Automated entailment verification and validated biomedical benchmark | Planned |
+| DOI/PMID/license-aware article import | Planned |
+| Reproducible biostatistics analysis workspace | Planned |
+
+VIRA Bio is for research and learning, not clinical diagnosis or treatment. PDF text extraction requires selectable text; scanned documents need OCR first. Individual PDFs are limited to 25 MB and 500 pages. Always inspect the cited page before relying on a claim.
+
+**Data:** By default, VIRA stores its SQLite database at `data/vira.db` and imported PDFs in `data/library/`. Both `.env` and `data/` are excluded from Git. Back up the database and PDF directory together. Never publish patient records, private PDFs, passwords, or API credentials.

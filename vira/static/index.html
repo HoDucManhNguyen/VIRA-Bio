@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>VIRA Bio — Research Library</title>
+  <link rel="stylesheet" href="/static/styles.css?v=library-layout-6">
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">✦</span>
+        <div><strong>VIRA BIO</strong><small>RESEARCH WORKSPACE</small></div>
+      </div>
+      <div class="nav-heading">WORKSPACE</div>
+      <nav class="views">
+        <button data-view="instructions" class="active" type="button">ⓘ <span>Instructions</span></button>
+        <button data-view="library" type="button">▣ <span>PDF Library</span></button>
+        <button data-view="notes" type="button">▤ <span>Notes</span></button>
+        <button data-view="tasks" type="button">☑ <span>Tasks</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <span id="apiStatus" class="status-dot"></span>
+        <span id="apiLabel">Checking connection…</span>
+        <small>Local-first · Bio v0.1</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header>
+        <button id="mobileMenu" class="ghost mobile-menu" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation">☰</button>
+        <div><span class="eyebrow" id="sectionLabel">GET STARTED</span><h1 id="sectionTitle">Start with your PDF library.</h1></div>
+        <div class="header-actions">
+          <span id="accessPill" class="pill">● Local</span>
+        </div>
+      </header>
+
+      <section id="instructionsView" class="view instructions-view">
+        <div class="instructions-content">
+          <div class="instructions-hero">
+            <span class="instructions-kicker">YOUR FIRST STEPS</span>
+            <h2>Build a searchable library from your PDFs.</h2>
+            <p>VIRA works best after you import a document. Your PDFs and search index stay on the VIRA computer, and basic PDF search does not require an API key.</p>
+            <div id="publicNotice" class="instructions-note hidden"><h3>Public shared workspace</h3><p>Anyone with this link can read, add, or delete PDFs, notes, and tasks. Do not upload personal or confidential records.</p></div>
+            <div class="instructions-actions">
+              <button id="openLibrary" class="primary" type="button">Open PDF Library</button>
+            </div>
+          </div>
+
+          <h3 class="instructions-heading">How to use PDF Library</h3>
+          <div class="instructions-steps">
+            <article class="instruction-step">
+              <span class="step-number">01</span>
+              <h4>Import a PDF</h4>
+              <p>Open PDF Library, expand <strong>Manage PDFs</strong> and then <strong>Add PDFs</strong>. Choose files with selectable text, confirm your rights, and import them. Scanned PDFs need OCR first.</p>
+            </article>
+            <article class="instruction-step">
+              <span class="step-number">02</span>
+              <h4>Explore the library</h4>
+              <p>Choose <strong>Ask a question</strong> for a cited answer or <strong>Find passages</strong> for matching text. Open a result to check its original PDF page.</p>
+            </article>
+            <article class="instruction-step">
+              <span class="step-number">03</span>
+              <h4>Review the sources</h4>
+              <p>With local Ollama, VIRA drafts an answer from retrieved PDF passages only when its source quotes pass basic checks. Verify each claim on the cited page.</p>
+            </article>
+          </div>
+
+          <div class="instructions-note">
+            <h3>Finding articles with PubMed</h3>
+            <p>Expand <strong>Find articles on PubMed</strong> under Optional tools. It finds citation details and links, but does not download or import full-text PDFs. To search an article in VIRA, obtain a PDF you are allowed to keep and import it yourself.</p>
+          </div>
+          <div class="instructions-note">
+            <h3>Optional hybrid search</h3>
+            <p>Keyword search works without an embedding model. For semantic search, install a local Ollama embedding model, build the index in PDF Library, then choose <strong>Hybrid</strong>. This is separate from the Ollama model used to draft source-backed answers.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="libraryView" class="view hidden">
+        <div class="library-content">
+          <div class="library-heading">
+            <p>Search your imported PDFs and check every result on its source page.</p>
+          </div>
+
+          <details id="documentsDetails" class="library-card documents-section">
+            <summary class="documents-summary">
+              <span><span class="step-label">01 · PREPARE</span><strong>Your PDFs <span id="documentCount" class="count-badge">Loading…</span></strong></span>
+              <span class="documents-action">Manage PDFs <span aria-hidden="true">⌄</span></span>
+            </summary>
+            <div class="documents-body">
+              <div id="libraryList" class="library-list"></div>
+              <details id="importDetails" class="inline-details">
+                <summary>Add PDFs</summary>
+                <div class="details-content">
+                  <p>Choose PDFs with selectable text. Each file can be up to 25 MB and 500 pages.</p>
+                  <form id="importForm" class="import-form">
+                    <input id="pdfFile" type="file" accept="application/pdf,.pdf" multiple required aria-label="Choose PDF files">
+                    <label><input id="rightsConfirmed" type="checkbox" required> I have permission to store and process these PDFs</label>
+                    <button id="importButton" class="primary" type="submit">Import PDFs</button>
+                  </form>
+                </div>
+              </details>
+            </div>
+          </details>
+
+          <section class="library-card explore-section" aria-labelledby="exploreTitle">
+            <div class="card-heading">
+              <div><span class="step-label">02 · EXPLORE</span><h3 id="exploreTitle">Find evidence</h3></div>
+              <span id="retrievalBadge" class="count-badge">Keyword search</span>
+            </div>
+            <div class="explore-tabs" role="tablist" aria-label="Choose how to explore your PDFs">
+              <button id="exploreAnswer" type="button" role="tab" aria-selected="true" aria-controls="answerPanel">Ask a question</button>
+              <button id="exploreSearch" type="button" role="tab" aria-selected="false" aria-controls="searchPanel">Find passages</button>
+            </div>
+            <div id="answerPanel" role="tabpanel" aria-labelledby="exploreAnswer">
+              <p class="mode-help">Get a short answer grounded in your PDFs, with links to the cited pages.</p>
+              <form id="answerForm" class="library-search">
+                <input id="answerQuestion" required maxlength="10000" placeholder="Ask a specific question about your PDFs…" aria-label="Question about imported PDFs">
+                <label class="search-mode-label">Search method <select id="answerSearchMode" aria-label="Answer retrieval method"><option value="keyword">Keyword</option><option value="hybrid" disabled>Hybrid</option></select></label>
+                <button id="answerButton" class="primary" type="submit">Get cited answer</button>
+              </form>
+              <div id="answerResults" class="answer-results" role="status" aria-live="polite"></div>
+            </div>
+            <div id="searchPanel" role="tabpanel" aria-labelledby="exploreSearch" hidden>
+              <p class="mode-help">Find matching passages without generating an answer.</p>
+              <form id="searchForm" class="library-search">
+                <input id="libraryQuery" required placeholder="Enter a term or phrase from your PDFs…" aria-label="Search PDF passages">
+                <label class="search-mode-label">Search method <select id="librarySearchMode" aria-label="Passage retrieval method"><option value="keyword">Keyword</option><option value="hybrid" disabled>Hybrid</option></select></label>
+                <button id="searchButton" class="primary" type="submit">Find passages</button>
+              </form>
+              <div id="searchResults" class="search-results" role="status" aria-live="polite"></div>
+            </div>
+          </section>
+
+          <div class="library-tools-label">OPTIONAL TOOLS</div>
+          <details id="semanticDetails" class="tool-details">
+            <summary><span><strong>Semantic search</strong><small>Enable Hybrid to find related ideas beyond exact keywords.</small></span><span id="semanticSummary" class="tool-state">Checking…</span></summary>
+            <div class="details-content semantic-panel">
+              <p>Hybrid search combines keywords with a separate local embedding model. It is optional; Keyword search works without it.</p>
+              <p id="semanticStatus" role="status">Checking index…</p>
+              <button id="buildSemanticIndex" class="ghost" type="button">Build semantic index</button>
+            </div>
+          </details>
+          <details id="pubmedDetails" class="tool-details">
+            <summary><span><strong>Find articles on PubMed</strong><small>Look up citation details before adding a PDF yourself.</small></span></summary>
+            <div class="details-content">
+              <p>PubMed results are metadata and links. They are not added to your PDF Library.</p>
+              <form id="pubmedForm" class="library-search">
+                <input id="pubmedQuery" required placeholder="Example: lung cancer Cox survival analysis" aria-label="Search PubMed">
+                <button class="primary" type="submit">Search PubMed</button>
+              </form>
+              <div id="pubmedResults" class="search-results" role="status" aria-live="polite"></div>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="notesView" class="view hidden">
+        <div class="section-head"><div><h2>Notes</h2><p>Capture ideas and keep everything in one place.</p></div><button id="newNote" class="primary">＋ New note</button></div>
+        <div id="notesList" class="note-grid"></div>
+      </section>
+      <section id="tasksView" class="view hidden">
+        <div class="section-head"><div><h2>Tasks</h2><p>A clear list for what matters next.</p></div></div>
+        <form id="taskForm" class="task-form"><input id="taskTitle" required maxlength="150" placeholder="Add a new task…"><button class="primary">Add task</button></form>
+        <div id="tasksList" class="tasks-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="noteDialog">
+    <form id="noteForm" class="note-editor">
+      <div class="modal-head"><h2 id="noteModalTitle">New note</h2><button type="button" id="closeNote" class="icon-button" aria-label="Close">✕</button></div>
+      <label for="noteTitle">Title</label><input id="noteTitle" maxlength="150" required placeholder="Untitled note">
+      <label for="noteContent">Content</label><textarea id="noteContent" maxlength="50000" rows="10" placeholder="Write something…"></textarea>
+      <div class="modal-actions"><button type="button" id="deleteNote" class="danger">Delete note</button><button type="button" id="cancelNote" class="ghost">Cancel</button><button type="submit" class="primary">Save note</button></div>
+    </form>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="/static/app.js?v=library-layout-6" defer></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+{"id":"answerable-example","question":"Replace with a question whose answer is on an imported PDF page","answerable":true,"expected_sources":[{"sha256":"REPLACE_WITH_IMPORTED_PDF_SHA256","page":1}]}
+{"id":"unanswerable-example","question":"Replace with a question the imported library cannot answer","answerable":false,"expected_sources":[]}
